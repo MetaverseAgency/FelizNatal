@@ -9,6 +9,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
 
+    <!-- Fontes Festivas (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Titan+One&display=swap" rel="stylesheet">
+
     <style>
         body, html {
             margin: 0;
@@ -17,7 +22,8 @@
             height: 100%;
             overflow: hidden;
             background-color: #1a1a1a;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            /* Fonte padrão do corpo (arredondada e divertida) */
+            font-family: 'Fredoka', sans-serif; 
             touch-action: none;
         }
 
@@ -71,6 +77,18 @@
             justify-content: space-between;
         }
 
+        /* Interface do Modo Foto */
+        #photo-ui {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 15;
+            display: none; /* Escondido por padrão */
+            pointer-events: auto;
+        }
+
         /* MENU / TELAS */
         #overlay {
             position: absolute;
@@ -84,89 +102,106 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; 
+            padding-top: 40px;
             color: white;
             text-align: center;
-            padding: 20px;
             pointer-events: auto;
             overflow-y: auto;
         }
 
         h1 {
-            font-size: clamp(2rem, 6vw, 3rem);
+            /* Fonte de Título Festiva */
+            font-family: 'Titan One', cursive;
+            font-size: clamp(2.5rem, 7vw, 4rem);
             color: #FFD700;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 4px 10px rgba(75, 0, 130, 0.8);
-            margin-bottom: 15px;
-            font-weight: 900;
+            text-shadow: 3px 3px 0px #4B0082, 6px 6px 10px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            font-weight: 400; /* Titan One já é bold */
         }
 
         p {
-            font-size: 1rem;
+            font-size: 1.1rem;
             line-height: 1.6;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             max-width: 400px;
             color: #e0e0e0;
-            font-weight: 300;
+            font-weight: 400;
+            padding: 0 20px;
         }
 
         /* Design de Botão Refinado */
         button {
+            font-family: 'Fredoka', sans-serif;
             background: linear-gradient(135deg, #6a0dad 0%, #4b0082 100%);
             color: white;
-            border: 1px solid rgba(255, 215, 0, 0.5);
+            border: 2px solid rgba(255, 215, 0, 0.5);
             padding: 12px 30px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             border-radius: 30px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            margin-top: 10px;
-            margin-bottom: 10px;
-            transition: all 0.2s ease;
+            box-shadow: 0 6px 0px #2e004e, 0 10px 10px rgba(0,0,0,0.3); /* Efeito 3D Cartoon */
+            margin: 10px;
+            transition: all 0.1s ease;
         }
         
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(106, 13, 173, 0.4);
             border-color: #FFD700;
         }
 
         button:active { 
-            transform: scale(0.98); 
+            transform: translateY(4px); /* Afunda o botão */
+            box-shadow: 0 2px 0px #2e004e, 0 4px 5px rgba(0,0,0,0.3);
         }
 
+        /* Botão Tirar Foto (Grande) */
+        #snap-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            border: 5px solid rgba(255,255,255,0.5);
+            padding: 0;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+        }
+        #snap-btn:active { background: #ddd; transform: scale(0.95); box-shadow: none; border-width: 2px;}
+
         /* Botão de Download Destaque */
-        .download-btn {
+        .action-btn {
+            font-family: 'Fredoka', sans-serif;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: #FFD700; /* Dourado */
-            color: #2e004e; /* Roxo Escuro */
             text-decoration: none;
-            padding: 12px 30px;
+            padding: 10px 25px;
             font-size: 1rem;
             border-radius: 30px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border: none;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-            margin-top: 15px;
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            margin: 5px;
+            cursor: pointer;
         }
 
-        .download-btn:hover {
-            background: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
-        }
+        .btn-gold { background: #FFD700; color: #2e004e; }
+        .btn-purple { background: #4B0082; color: white; border: 1px solid #FFD700; }
+        .btn-outline { background: transparent; color: white; border: 2px solid white; box-shadow: none; }
 
-        /* HUD (Placar) com Cápsulas */
+        /* HUD (Placar) */
         .hud {
             padding: 20px;
             display: flex;
@@ -176,29 +211,69 @@
         }
 
         .hud-item {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
             padding: 8px 16px;
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: white;
+            border: 2px solid rgba(255,255,255,0.2);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #FFD700;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
-        /* Foto final */
+        /* Galeria e Fotos */
         #final-photo {
-            max-width: 85%;
-            max-height: 45vh;
-            border: 3px solid #FFD700;
-            border-radius: 12px;
-            margin: 20px 0;
+            max-width: 90%;
+            max-height: 40vh;
+            border: 4px solid #FFD700;
+            border-radius: 15px;
+            margin: 10px 0;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
+
+        .gallery-container {
+            width: 90%;
+            margin-top: 20px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .gallery-title {
+            font-size: 1.1rem;
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+            padding-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .gallery-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+
+        .gallery-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .gallery-thumb:hover { border-color: #FFD700; transform: scale(1.05); }
 
         .debug-console {
             margin-top: 20px;
@@ -219,7 +294,7 @@
     <canvas id="game-canvas"></canvas>
 
     <div id="ui-layer">
-        <div class="hud">
+        <div class="hud" id="hud-container">
             <div class="hud-item">
                 <span style="font-size:1.4rem">🎁</span> <span id="score">0</span>
             </div>
@@ -227,22 +302,30 @@
                 <span style="font-size:1.4rem">❤️</span> <span id="lives">3</span>
             </div>
         </div>
+        
+        <!-- UI do Modo Foto (Inicialmente oculta) -->
+        <div id="photo-ui">
+            <p style="text-shadow: 0 2px 4px black; font-weight:700; font-size:1.4rem; margin-bottom:10px; color:#FFD700;">
+                Prepare-se para a foto! 🎄
+            </p>
+            <button id="snap-btn">📸</button>
+        </div>
     </div>
 
     <div id="overlay">
         <h1>🎄 Caça-Presentes</h1>
         <p>
-            A Metaverse Agency te convida para essa aventura de Natal!<br>
-            Use sua câmera para encontrar os presentes.
+            A Metaverse Agency convida-te para esta aventura!<br>
+            Usa a tua câmara para encontrar os presentes e desvia do chão.
         </p>
         
         <button id="start-btn">Começar Jogo</button>
         
         <button id="retry-cam" style="display:none; background:#d32f2f; border-color:#ff5252;">
-            ⚠️ Tentar Câmera
+            ⚠️ Tentar Câmara
         </button>
 
-        <div class="debug-console" id="debug-log">Status: Aguardando...</div>
+        <div class="debug-console" id="debug-log">Status: A aguardar...</div>
     </div>
 
     <script>
@@ -256,21 +339,26 @@
         const livesEl = document.getElementById('lives');
         const debugLog = document.getElementById('debug-log');
         const filterLayer = document.getElementById('christmas-filter');
+        const hudContainer = document.getElementById('hud-container');
+        const photoUI = document.getElementById('photo-ui');
+        const snapBtn = document.getElementById('snap-btn');
 
         let width, height;
         let gameActive = false;
+        let photoMode = false;
         let score = 0;
         let lives = 3;
         let difficulty = 1;
         let lastTime = 0;
         let spawnTimer = 0;
         let cameraWorks = false;
+        let sessionPhotos = []; 
 
         // IA de Rosto
         let faceModel = null;
         let detectedFaces = [];
         let lastFaceDetectTime = 0;
-        const FACE_DETECT_INTERVAL = 150;
+        const FACE_DETECT_INTERVAL = 100;
 
         // Entidades
         let presents = [];
@@ -295,17 +383,17 @@
 
         async function loadFaceModel() {
             try {
-                log("Carregando gorro...");
+                log("A carregar gorro...");
                 faceModel = await blazeface.load();
                 log("Modelo carregado!");
             } catch (e) {
                 console.error("Erro IA:", e);
-                log("Aviso: Sem detecção facial.");
+                log("Aviso: Sem deteção facial.");
             }
         }
 
         async function startCamera() {
-            log("Iniciando câmera...");
+            log("A iniciar câmara...");
             retryBtn.style.display = 'none';
 
             if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
@@ -328,14 +416,14 @@
                 await video.play();
                 
                 cameraWorks = true;
-                log("Câmera ativa!");
+                log("Câmara ativa!");
                 video.style.display = 'block';
                 filterLayer.style.display = 'block';
                 return true;
 
             } catch (err) {
                 console.error(err);
-                log("⚠️ Erro na câmera. Modo gráfico.");
+                log("⚠️ Erro na câmara. Modo gráfico.");
                 retryBtn.style.display = 'inline-block';
                 cameraWorks = false;
                 video.style.display = 'none';
@@ -360,7 +448,65 @@
             }
         }
 
-        function drawSantaHat(ctx, face) {
+        // --- BOCHECHAS CORADAS (BLUSH) ---
+        function drawBlush(ctx, face) {
+            const start = face.topLeft;
+            const end = face.bottomRight;
+            const faceWidth = end[0] - start[0];
+            const faceHeight = end[1] - start[1];
+
+            const videoW = video.videoWidth;
+            const videoH = video.videoHeight;
+            const screenW = canvas.width;
+            const screenH = canvas.height;
+            const videoRatio = videoW / videoH;
+            const screenRatio = screenW / screenH;
+            let scale, offsetX, offsetY;
+
+            if (screenRatio > videoRatio) {
+                scale = screenW / videoW;
+                offsetX = 0;
+                offsetY = (videoH * scale - screenH) / 2;
+            } else {
+                scale = screenH / videoH;
+                offsetX = (videoW * scale - screenW) / 2;
+                offsetY = 0;
+            }
+            
+            const faceX = (start[0] * scale) - offsetX;
+            const faceY = (start[1] * scale) - offsetY;
+            const scaledFaceWidth = faceWidth * scale;
+            const scaledFaceHeight = faceHeight * scale;
+
+            const cheekY = faceY + scaledFaceHeight * 0.55;
+            const cheekX_Left = faceX + scaledFaceWidth * 0.25;
+            const cheekX_Right = faceX + scaledFaceWidth * 0.75;
+            const blushRadius = scaledFaceWidth * 0.15;
+
+            ctx.save();
+            ctx.globalAlpha = 0.4; 
+            
+            const gradL = ctx.createRadialGradient(cheekX_Left, cheekY, 0, cheekX_Left, cheekY, blushRadius);
+            gradL.addColorStop(0, "#FF4081"); 
+            gradL.addColorStop(1, "transparent");
+            ctx.fillStyle = gradL;
+            ctx.beginPath();
+            ctx.arc(cheekX_Left, cheekY, blushRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            const gradR = ctx.createRadialGradient(cheekX_Right, cheekY, 0, cheekX_Right, cheekY, blushRadius);
+            gradR.addColorStop(0, "#FF4081");
+            gradR.addColorStop(1, "transparent");
+            ctx.fillStyle = gradR;
+            ctx.beginPath();
+            ctx.arc(cheekX_Right, cheekY, blushRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // --- GORRO 3D REALISTA ---
+        function drawSantaHat3D(ctx, face) {
             const start = face.topLeft;
             const end = face.bottomRight;
             const faceWidth = end[0] - start[0];
@@ -369,10 +515,8 @@
             const videoH = video.videoHeight;
             const screenW = canvas.width;
             const screenH = canvas.height;
-
             const videoRatio = videoW / videoH;
             const screenRatio = screenW / screenH;
-            
             let scale, offsetX, offsetY;
 
             if (screenRatio > videoRatio) {
@@ -390,47 +534,226 @@
             const scaledFaceWidth = faceWidth * scale;
 
             const hatCenterX = faceX + (scaledFaceWidth / 2);
-            const hatBottomY = faceY - (scaledFaceWidth * 0.1); 
+            const hatBottomY = faceY - (scaledFaceWidth * 0.2); 
             
-            const hatWidth = scaledFaceWidth * 1.5;
-            const hatHeight = hatWidth * 1.2;
+            const hatWidth = scaledFaceWidth * 1.0; 
+            const hatHeight = hatWidth * 1.1;
 
             ctx.save();
             ctx.translate(hatCenterX, hatBottomY);
-            ctx.shadowColor = "rgba(0,0,0,0.5)";
-            ctx.shadowBlur = 10;
+            
+            ctx.shadowColor = "rgba(0,0,0,0.4)";
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetY = 5;
 
-            // Gorro
+            // 1. Parte de trás
+            ctx.beginPath();
+            ctx.moveTo(hatWidth * 0.2, 0);
+            ctx.quadraticCurveTo(hatWidth * 0.9, -hatHeight * 0.6, hatWidth * 0.5, -hatHeight * 0.3);
+            ctx.lineTo(0, -hatHeight * 0.4);
+            const gradBack = ctx.createLinearGradient(-hatWidth/2, 0, hatWidth/2, 0);
+            gradBack.addColorStop(0, "#700000");
+            gradBack.addColorStop(1, "#900000");
+            ctx.fillStyle = gradBack;
+            ctx.fill();
+
+            // 2. Cone Principal
             ctx.beginPath();
             ctx.moveTo(-hatWidth/2, 0);
-            ctx.quadraticCurveTo(0, -hatHeight, hatWidth/2, 0); 
-            ctx.quadraticCurveTo(0, -20, -hatWidth/2, 0);
-            ctx.fillStyle = "#D42426"; 
+            ctx.quadraticCurveTo(0, -hatHeight, hatWidth * 0.4, -hatHeight * 0.5); 
+            ctx.quadraticCurveTo(hatWidth * 0.1, -hatHeight * 0.2, hatWidth/2, 0);
+            ctx.quadraticCurveTo(0, -hatWidth * 0.1, -hatWidth/2, 0);
+            const gradCone = ctx.createRadialGradient(-hatWidth*0.2, -hatHeight*0.2, 5, 0, -hatHeight*0.4, hatWidth);
+            gradCone.addColorStop(0, "#E62E2E"); 
+            gradCone.addColorStop(0.5, "#D42426"); 
+            gradCone.addColorStop(1, "#8B0000"); 
+            ctx.fillStyle = gradCone;
             ctx.fill();
 
-            // Ponta
+            // 3. Pompom
+            const pomX = hatWidth * 0.5;
+            const pomY = -hatHeight * 0.3;
+            const pomR = hatWidth * 0.12;
             ctx.beginPath();
-            ctx.moveTo(hatWidth/4, -hatHeight/1.5);
-            ctx.quadraticCurveTo(hatWidth/1.2, -hatHeight/2, hatWidth/1.4, -hatHeight/4);
-            ctx.lineTo(0, -hatHeight/2); 
-            ctx.fillStyle = "#D42426";
+            ctx.arc(pomX, pomY, pomR, 0, Math.PI*2);
+            const gradPom = ctx.createRadialGradient(pomX - pomR/3, pomY - pomR/3, 2, pomX, pomY, pomR);
+            gradPom.addColorStop(0, "#FFFFFF");
+            gradPom.addColorStop(1, "#DDDDDD");
+            ctx.fillStyle = gradPom;
             ctx.fill();
 
-            // Pompom
+            // 4. Faixa Branca
             ctx.beginPath();
-            ctx.arc(hatWidth/1.4, -hatHeight/4, hatWidth/6, 0, Math.PI*2);
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fill();
-
-            // Base
-            ctx.beginPath();
-            ctx.roundRect(-hatWidth/1.8, -10, hatWidth * 1.1, hatWidth/4, 20);
-            ctx.fillStyle = "#FFFFFF";
+            ctx.roundRect(-hatWidth/1.8, -hatHeight*0.1, hatWidth * 1.1, hatHeight*0.25, 15);
+            const gradFur = ctx.createLinearGradient(0, -hatHeight*0.1, 0, hatHeight*0.15);
+            gradFur.addColorStop(0, "#FFFFFF");
+            gradFur.addColorStop(0.5, "#F0F0F0");
+            gradFur.addColorStop(1, "#CCCCCC");
+            ctx.fillStyle = gradFur;
             ctx.fill();
 
             ctx.restore();
         }
 
+        // --- SISTEMA DE FOTO ---
+        function startPhotoBooth() {
+            gameActive = false;
+            photoMode = true;
+            hudContainer.style.display = 'none'; 
+            overlay.style.display = 'none'; 
+            photoUI.style.display = 'block'; 
+        }
+
+        function takePhoto() {
+            const photoData = createSelfie(); 
+            sessionPhotos.unshift(photoData); 
+            showResultScreen(photoData);
+        }
+
+        function createSelfie() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // 1. Desenha Vídeo
+            if (cameraWorks) {
+                const vidRatio = video.videoWidth / video.videoHeight;
+                const screenRatio = width / height;
+                let sx, sy, sWidth, sHeight;
+                if (screenRatio > vidRatio) {
+                    sWidth = video.videoWidth;
+                    sHeight = video.videoWidth / screenRatio;
+                    sx = 0;
+                    sy = (video.videoHeight - sHeight) / 2;
+                } else {
+                    sHeight = video.videoHeight;
+                    sWidth = video.videoHeight * screenRatio;
+                    sx = (video.videoWidth - sWidth) / 2;
+                    sy = 0;
+                }
+                ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, width, height);
+                
+                // Desenha Efeitos Faciais
+                if (detectedFaces.length > 0) {
+                    detectedFaces.forEach(face => {
+                        drawBlush(ctx, face); 
+                        drawSantaHat3D(ctx, face); 
+                    });
+                }
+            } else {
+                let grad = ctx.createLinearGradient(0,0,0,height);
+                grad.addColorStop(0, "#2E004E");
+                grad.addColorStop(1, "#000000");
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            // 2. Desenha Neve
+            snowflakes.forEach(flake => { flake.draw(); });
+
+            // 3. Moldura e Textos
+            const metaPurple = "#4B0082";
+            const metaGold = "#FFD700";
+            
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = metaPurple;
+            ctx.strokeRect(0, 0, width, height);
+            
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = metaGold;
+            ctx.strokeRect(10, 10, width-20, height-20);
+
+            const footerH = Math.min(height * 0.35, 250); 
+            const footerY = height - footerH;
+
+            ctx.save();
+            ctx.shadowColor = "black";
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = -5;
+            const grd = ctx.createLinearGradient(0, footerY, 0, height);
+            grd.addColorStop(0, "rgba(75, 0, 130, 0.95)");
+            grd.addColorStop(1, "rgba(20, 0, 40, 1)");
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, footerY, width, footerH);
+
+            ctx.beginPath();
+            ctx.moveTo(0, footerY);
+            ctx.lineTo(width, footerY);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = metaGold;
+            ctx.stroke();
+            ctx.restore();
+
+            const centerX = width / 2;
+            const contentStartY = footerY + 45;
+
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+
+            // Título: METAVERSE AGENCY (Fonte Titan One)
+            let fontSizeTitle = Math.min(width * 0.08, 32);
+            ctx.font = `${fontSizeTitle}px "Titan One", cursive`; 
+            ctx.fillStyle = "#FFFFFF";
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 4;
+            ctx.fillText("METAVERSE AGENCY", centerX, contentStartY);
+
+            // Subtítulo (Fonte Fredoka)
+            ctx.shadowBlur = 0; 
+            let currentY = contentStartY + fontSizeTitle + 15;
+            let fontSizeSub = Math.min(width * 0.05, 20);
+            ctx.font = `600 ${fontSizeSub}px "Fredoka", sans-serif`;
+            ctx.fillStyle = metaGold;
+            ctx.fillText("DESEJA A VOCÊ UM FELIZ NATAL!", centerX, currentY);
+
+            currentY += fontSizeSub + 15;
+            let fontSizeBody = Math.min(width * 0.045, 16);
+            ctx.font = `300 ${fontSizeBody}px "Fredoka", sans-serif`;
+            ctx.fillStyle = "#E0E0E0";
+            ctx.fillText("Independentemente do número de presentes,", centerX, currentY);
+            ctx.fillText("que haja muita alegria!", centerX, currentY + fontSizeBody * 1.5);
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function showResultScreen(currentPhoto) {
+            photoMode = false;
+            photoUI.style.display = 'none'; 
+            
+            let galleryHTML = sessionPhotos.map(src => 
+                `<img src="${src}" class="gallery-thumb" onclick="document.getElementById('final-photo').src = this.src; document.getElementById('dl-link').href = this.src;">`
+            ).join('');
+
+            overlay.innerHTML = `
+                <h1 style="font-size: 2rem; margin-bottom: 5px">🎄 A tua Foto de Natal!</h1>
+                
+                <img id="final-photo" src="${currentPhoto}" alt="Selfie">
+                
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px;">
+                    <a id="dl-link" href="${currentPhoto}" download="natal-metaverse.png" class="action-btn btn-gold">
+                        ⬇️ Baixar
+                    </a>
+                    <button onclick="retakePhoto()" class="action-btn btn-purple">
+                        📸 Tirar Outra
+                    </button>
+                    <button onclick="window.location.reload()" class="action-btn btn-outline">
+                        🎮 Novo Jogo
+                    </button>
+                </div>
+
+                <div class="gallery-container">
+                    <div class="gallery-title">📂 Galeria da Sessão (${sessionPhotos.length})</div>
+                    <div class="gallery-grid">
+                        ${galleryHTML}
+                    </div>
+                </div>
+            `;
+            overlay.style.display = 'flex';
+        }
+
+        function retakePhoto() {
+            startPhotoBooth();
+        }
+
+        // --- CLASSES JOGO ---
         class Snowflake {
             constructor() { this.init(true); }
             init(firstTime = false) {
@@ -482,6 +805,7 @@
                 ctx.rotate(this.rotation);
                 ctx.shadowColor = "#FFD700";
                 ctx.shadowBlur = 20;
+                // Emoji fonte
                 ctx.font = `${this.size}px Arial`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
@@ -518,15 +842,19 @@
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
                     ctx.fill();
                     ctx.fillStyle = "#FFD700";
-                    ctx.font = "bold 30px Arial";
+                    ctx.font = "bold 30px 'Fredoka'";
                     ctx.fillText("+10", this.x, this.y - this.size);
                 }
                 ctx.globalAlpha = 1.0;
             }
         }
 
+        // --- LÓGICA DO JOGO ---
         function handleInput(e) {
+            // Se estiver no modo foto, não interage com presentes
+            if (photoMode) return;
             if (!gameActive) return;
+
             e.preventDefault();
             let inputs = [];
             if (e.type === 'touchstart') {
@@ -564,135 +892,40 @@
             Object.assign(flash.style, {position:'absolute', top:0, left:0, width:'100%', height:'100%', background:'red', opacity:0.4, pointerEvents:'none', zIndex:15});
             document.body.appendChild(flash);
             setTimeout(() => flash.remove(), 200);
-            if (lives <= 0) gameOver();
-        }
-
-        function createSelfie() {
-            ctx.clearRect(0, 0, width, height);
-            if (cameraWorks) {
-                const vidRatio = video.videoWidth / video.videoHeight;
-                const screenRatio = width / height;
-                let sx, sy, sWidth, sHeight;
-                if (screenRatio > vidRatio) {
-                    sWidth = video.videoWidth;
-                    sHeight = video.videoWidth / screenRatio;
-                    sx = 0;
-                    sy = (video.videoHeight - sHeight) / 2;
-                } else {
-                    sHeight = video.videoHeight;
-                    sWidth = video.videoHeight * screenRatio;
-                    sx = (video.videoWidth - sWidth) / 2;
-                    sy = 0;
-                }
-                ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, width, height);
-                if (detectedFaces.length > 0) detectedFaces.forEach(face => drawSantaHat(ctx, face));
-            } else {
-                let grad = ctx.createLinearGradient(0,0,0,height);
-                grad.addColorStop(0, "#2E004E");
-                grad.addColorStop(1, "#000000");
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, width, height);
+            if (lives <= 0) {
+                startPhotoBooth();
             }
-
-            const metaPurple = "#4B0082";
-            const metaGold = "#FFD700";
-            
-            ctx.lineWidth = 15;
-            ctx.strokeStyle = metaPurple;
-            ctx.strokeRect(0, 0, width, height);
-            
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = metaGold;
-            ctx.strokeRect(10, 10, width-20, height-20);
-
-            const footerH = Math.min(height * 0.35, 250); 
-            const footerY = height - footerH;
-
-            ctx.save();
-            ctx.shadowColor = "black";
-            ctx.shadowBlur = 20;
-            ctx.shadowOffsetY = -5;
-            const grd = ctx.createLinearGradient(0, footerY, 0, height);
-            grd.addColorStop(0, "rgba(75, 0, 130, 0.95)");
-            grd.addColorStop(1, "rgba(20, 0, 40, 1)");
-            ctx.fillStyle = grd;
-            ctx.fillRect(0, footerY, width, footerH);
-
-            ctx.beginPath();
-            ctx.moveTo(0, footerY);
-            ctx.lineTo(width, footerY);
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = metaGold;
-            ctx.stroke();
-            ctx.restore();
-
-            const centerX = width / 2;
-            const contentStartY = footerY + 45;
-
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-
-            let fontSizeTitle = Math.min(width * 0.08, 32);
-            ctx.font = `900 ${fontSizeTitle}px "Segoe UI", Roboto, Arial, sans-serif`; 
-            ctx.fillStyle = "#FFFFFF";
-            ctx.shadowColor = "rgba(0,0,0,0.5)";
-            ctx.shadowBlur = 4;
-            ctx.fillText("METAVERSE AGENCY", centerX, contentStartY);
-
-            ctx.shadowBlur = 0; 
-            let currentY = contentStartY + fontSizeTitle + 15;
-            let fontSizeSub = Math.min(width * 0.05, 20);
-            ctx.font = `bold ${fontSizeSub}px "Segoe UI", Arial, sans-serif`;
-            ctx.fillStyle = metaGold;
-            ctx.fillText("DESEJA A VOCÊ UM FELIZ NATAL!", centerX, currentY);
-
-            currentY += fontSizeSub + 15;
-            let fontSizeBody = Math.min(width * 0.045, 16);
-            ctx.font = `italic 300 ${fontSizeBody}px "Segoe UI", sans-serif`;
-            ctx.fillStyle = "#E0E0E0";
-            ctx.fillText("Independentemente do número de presentes,", centerX, currentY);
-            ctx.fillText("que haja muita alegria!", centerX, currentY + fontSizeBody * 1.5);
-
-            return canvas.toDataURL('image/png');
-        }
-
-        function gameOver() {
-            gameActive = false;
-            const photoData = createSelfie();
-            overlay.innerHTML = `
-                <h1 style="font-size: 2rem; margin-bottom: 5px">🎄 Fim de Jogo!</h1>
-                <p style="font-size: 1.1rem; margin-bottom: 10px; color:#ddd">Pontuação: <strong>${score}</strong> 🎁</p>
-                
-                <img id="final-photo" src="${photoData}" alt="Sua Selfie de Natal">
-                
-                <a href="${photoData}" download="natal-metaverse-agency.png" class="download-btn">
-                    <span>⬇️</span> Baixar Foto
-                </a>
-
-                <button onclick="window.location.reload()" style="margin-top: 15px; background: transparent; border: 1px solid rgba(255,255,255,0.3); font-size: 0.9rem; padding: 10px 20px;">
-                    Jogar Novamente
-                </button>
-            `;
-            overlay.style.display = 'flex';
         }
 
         function loop(timestamp) {
-            if (!gameActive) return;
+            if (!gameActive && !photoMode) return;
+
             let deltaTime = timestamp - lastTime;
             lastTime = timestamp;
             ctx.clearRect(0, 0, width, height);
 
             if (!cameraWorks) {
                 let grad = ctx.createLinearGradient(0,0,0,height);
-                grad.addColorStop(0, "#004d00");
-                grad.addColorStop(1, "#800000");
+                grad.addColorStop(0, "#2E004E");
+                grad.addColorStop(1, "#000000");
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, width, height);
                 ctx.fillStyle = "rgba(255,255,255,0.2)";
                 for(let i=0; i<30; i++) ctx.fillRect(Math.random()*width, Math.random()*height, 2, 2); 
             } else {
                 detectFaces(timestamp);
-                detectedFaces.forEach(face => drawSantaHat(ctx, face));
+                if (detectedFaces.length > 0) {
+                    detectedFaces.forEach(face => {
+                        drawBlush(ctx, face);
+                        drawSantaHat3D(ctx, face);
+                    });
+                }
+            }
+
+            if (photoMode) {
+                snowflakes.forEach(flake => { flake.update(); flake.draw(); });
+                requestAnimationFrame(loop);
+                return;
             }
 
             snowflakes.forEach(flake => { flake.update(); flake.draw(); });
@@ -720,7 +953,10 @@
             effects = [];
             snowflakes = [];
             for(let i=0; i<60; i++) snowflakes.push(new Snowflake());
+            
+            hudContainer.style.display = 'flex';
             gameActive = true;
+            photoMode = false;
             lastTime = performance.now();
             requestAnimationFrame(loop);
         }
@@ -731,6 +967,7 @@
             log("Tentando novamente...");
             startCamera();
         });
+        snapBtn.addEventListener('click', takePhoto);
 
         window.addEventListener('mousedown', handleInput);
         window.addEventListener('touchstart', handleInput, { passive: false });
