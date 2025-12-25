@@ -77,16 +77,45 @@
             justify-content: space-between;
         }
 
-        /* Interface do Modo Foto */
+        /* Interface do Modo Foto (TIMER) */
         #photo-ui {
             position: absolute;
-            bottom: 30px;
+            top: 0;
             left: 0;
             width: 100%;
-            text-align: center;
+            height: 100%;
             z-index: 15;
             display: none; /* Escondido por padrão */
-            pointer-events: auto;
+            pointer-events: none; /* Deixa passar clique se precisar */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-number {
+            font-family: 'Titan One', cursive;
+            font-size: 8rem;
+            color: #FFD700;
+            text-shadow: 4px 4px 0 #D42426, 8px 8px 20px rgba(0,0,0,0.8);
+            animation: pulse 1s infinite;
+        }
+
+        .timer-label {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.5rem;
+            color: white;
+            text-shadow: 0 2px 5px black;
+            font-weight: 600;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         /* MENU / TELAS */
@@ -159,23 +188,6 @@
             transform: translateY(4px); /* Afunda o botão */
             box-shadow: 0 2px 0px #2e004e, 0 4px 5px rgba(0,0,0,0.3);
         }
-
-        /* Botão Tirar Foto (Grande) */
-        #snap-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: white;
-            border: 5px solid rgba(255,255,255,0.5);
-            padding: 0;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            cursor: pointer;
-        }
-        #snap-btn:active { background: #ddd; transform: scale(0.95); box-shadow: none; border-width: 2px;}
 
         /* Botão de Download Destaque */
         .action-btn {
@@ -303,12 +315,10 @@
             </div>
         </div>
         
-        <!-- UI do Modo Foto (Inicialmente oculta) -->
+        <!-- UI do Modo Foto (Contagem Regressiva) -->
         <div id="photo-ui">
-            <p style="text-shadow: 0 2px 4px black; font-weight:700; font-size:1.4rem; margin-bottom:10px; color:#FFD700;">
-                Prepare-se para a foto! 🎄
-            </p>
-            <button id="snap-btn">📸</button>
+            <div id="countdown-num" class="timer-number">5</div>
+            <div id="countdown-label" class="timer-label">Prepare-se para a foto!</div>
         </div>
     </div>
 
@@ -341,7 +351,8 @@
         const filterLayer = document.getElementById('christmas-filter');
         const hudContainer = document.getElementById('hud-container');
         const photoUI = document.getElementById('photo-ui');
-        const snapBtn = document.getElementById('snap-btn');
+        const countdownNum = document.getElementById('countdown-num');
+        const countdownLabel = document.getElementById('countdown-label');
 
         let width, height;
         let gameActive = false;
@@ -353,6 +364,7 @@
         let spawnTimer = 0;
         let cameraWorks = false;
         let sessionPhotos = []; 
+        let countdownInterval;
 
         // IA de Rosto
         let faceModel = null;
@@ -595,13 +607,37 @@
             ctx.restore();
         }
 
-        // --- SISTEMA DE FOTO ---
+        // --- SISTEMA DE FOTO E TIMER ---
         function startPhotoBooth() {
             gameActive = false;
             photoMode = true;
             hudContainer.style.display = 'none'; 
             overlay.style.display = 'none'; 
-            photoUI.style.display = 'block'; 
+            photoUI.style.display = 'flex'; 
+            
+            // Inicia Timer
+            startCountdown();
+        }
+
+        function startCountdown() {
+            let count = 5;
+            countdownNum.innerText = count;
+            countdownLabel.innerText = "Prepare-se para a foto! 🎄";
+            
+            // Limpa intervalo anterior se houver
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownNum.innerText = count;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownNum.innerText = "📸";
+                    countdownLabel.innerText = "SORRIA!";
+                    setTimeout(() => takePhoto(), 500); // Tira foto após meio segundo
+                }
+            }, 1000);
         }
 
         function takePhoto() {
@@ -613,6 +649,11 @@
         function createSelfie() {
             ctx.clearRect(0, 0, width, height);
             
+            // --- ESPELHAMENTO DA SELFIE ---
+            ctx.save(); 
+            ctx.translate(width, 0); 
+            ctx.scale(-1, 1); 
+
             // 1. Desenha Vídeo
             if (cameraWorks) {
                 const vidRatio = video.videoWidth / video.videoHeight;
@@ -631,7 +672,7 @@
                 }
                 ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, width, height);
                 
-                // Desenha Efeitos Faciais
+                // Desenha Efeitos Faciais dentro do contexto espelhado
                 if (detectedFaces.length > 0) {
                     detectedFaces.forEach(face => {
                         drawBlush(ctx, face); 
@@ -645,11 +686,13 @@
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, width, height);
             }
+            
+            ctx.restore(); // Restaura para não espelhar textos e moldura
 
-            // 2. Desenha Neve
+            // 2. Desenha Neve (por cima)
             snowflakes.forEach(flake => { flake.draw(); });
 
-            // 3. Moldura e Textos
+            // 3. Moldura e Textos (Normal, não espelhado)
             const metaPurple = "#4B0082";
             const metaGold = "#FFD700";
             
@@ -967,7 +1010,6 @@
             log("Tentando novamente...");
             startCamera();
         });
-        snapBtn.addEventListener('click', takePhoto);
 
         window.addEventListener('mousedown', handleInput);
         window.addEventListener('touchstart', handleInput, { passive: false });
